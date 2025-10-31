@@ -54,7 +54,7 @@ class ElizaServerTest {
         // assertEquals CANNOT BE USED because the number of messages received may vary
         // 4. COMPLETE assertEquals(XXX, list[XXX])
         assertEquals("Can you think of a specific example?", list[size - 1])
-        
+
         logger.info { "Received $size messages" }
     }
 }
@@ -77,8 +77,8 @@ class ComplexClient(
     private val list: MutableList<String>,
     private val latch: CountDownLatch,
 ) {
+    // @Suppress("UNUSED_PARAMETER") // Remove this line when you implement onMessage
     @OnMessage
-    //@Suppress("UNUSED_PARAMETER") // Remove this line when you implement onMessage
     fun onMessage(
         message: String,
         session: Session,
