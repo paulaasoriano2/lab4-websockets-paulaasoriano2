@@ -53,7 +53,7 @@ class ElizaServerTest {
         // 3. EXPLAIN WHY assertEquals CANNOT BE USED AND WHY WE SHOULD CHECK THE INTERVAL
         // assertEquals CANNOT BE USED because the number of messages received may vary
         // 4. COMPLETE assertEquals(XXX, list[XXX])
-        assertEquals("Can you think of a specific example?", list[size - 1])
+        assertEquals("Can you think of a specific example?", list[3])
 
         logger.info { "Received $size messages" }
     }
