@@ -4,8 +4,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.stereotype.Controller
 import websockets.Eliza
-import java.util.Scanner
 import java.util.Locale
+import java.util.Scanner
 
 @Controller
 class ElizaStompController {

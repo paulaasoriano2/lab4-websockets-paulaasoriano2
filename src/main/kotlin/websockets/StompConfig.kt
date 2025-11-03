@@ -9,7 +9,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 class StompConfig : WebSocketMessageBrokerConfigurer {
-
     /**
      * Configures message broker options
      * @param config
