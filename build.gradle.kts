@@ -23,6 +23,8 @@ dependencies {
 
     testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.ninjasquad.springmocck)
+
+    implementation("org.webjars:stomp-websocket:2.3.3")
 }
 
 tasks.withType<Test> {
