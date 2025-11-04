@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Dashboard</title>
+</head>
+<body>
+  <h2>WebSocket Real-time Dashboard</h2>
+  <p>Active Connections: <span id="activeConnections">0</span></p>
+  <p>Total Messages: <span id="totalMessages">0</span></p>
+  <p>Messages per Second: <span id="messagesPerSecond">0</span></p>
+
+  <script>
+    const socket = new WebSocket("ws://localhost:8080/dashboard");
+
+    socket.onopen = () => console.log("Connected to the WebSocket dashboard");
+    socket.onmessage = event => {
+      const data = JSON.parse(event.data);
+      document.getElementById("activeConnections").textContent = data.activeConnections;
+      document.getElementById("totalMessages").textContent = data.totalMessages;
+      document.getElementById("messagesPerSecond").textContent = data.messagesPerSecond;
+    };
+  </script>
+</body>
+</html>

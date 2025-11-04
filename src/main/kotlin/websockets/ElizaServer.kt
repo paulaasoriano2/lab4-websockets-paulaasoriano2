@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.server.standard.ServerEndpointExporter
 import java.util.Locale
 import java.util.Scanner
+import java.util.concurrent.CopyOnWriteArraySet
+import kotlin.concurrent.fixedRateTimer
 
 @SpringBootApplication
 class Application
@@ -50,6 +52,60 @@ fun RemoteEndpoint.Basic.sendTextSafe(message: String) {
     }
 }
 
+// ---------- SHARED METRICS ----------
+object Metrics {
+    private val sessions = CopyOnWriteArraySet<Session>()
+    private var activeConnections = 0
+    private var totalMessages = 0L
+    private var lastTotal = 0L
+
+    init {
+        // To send the metrics every second 
+        fixedRateTimer("metrics", initialDelay = 1000, period = 1000) {
+            val newTotal = totalMessages
+            val perSecond = newTotal - lastTotal
+            lastTotal = newTotal
+
+            val metricsJson =
+                """
+                {
+                  "activeConnections": $activeConnections,
+                  "totalMessages": $totalMessages,
+                  "messagesPerSecond": $perSecond
+                }
+                """.trimIndent()
+
+            sessions.forEach { session ->
+                if (session.isOpen) {
+                    synchronized(session.basicRemote) {
+                        session.basicRemote.sendText(metricsJson)
+                    }
+                }
+            }
+        }
+    }
+
+    fun incrementConnections() {
+        activeConnections++
+    }
+
+    fun decrementConnections() {
+        activeConnections--
+    }
+
+    fun incrementMessages() {
+        totalMessages++
+    }
+
+    fun registerDashboard(session: Session) {
+        sessions.add(session)
+    }
+
+    fun unregisterDashboard(session: Session) {
+        sessions.remove(session)
+    }
+}
+
 @ServerEndpoint("/eliza")
 @Component
 class ElizaEndpoint {
@@ -62,6 +118,7 @@ class ElizaEndpoint {
      */
     @OnOpen
     fun onOpen(session: Session) {
+        Metrics.incrementConnections()
         logger.info { "Server Connected ... Session ${session.id}" }
         with(session.basicRemote) {
             sendTextSafe("The doctor is in.")
@@ -80,6 +137,7 @@ class ElizaEndpoint {
         session: Session,
         closeReason: CloseReason,
     ) {
+        Metrics.decrementConnections()
         logger.info { "Session ${session.id} closed because of $closeReason" }
     }
 
@@ -93,6 +151,7 @@ class ElizaEndpoint {
         message: String,
         session: Session,
     ) {
+        Metrics.incrementMessages()
         logger.info { "Server Message ... Session ${session.id}" }
         val currentLine = Scanner(message.lowercase(Locale.getDefault()))
         if (currentLine.findInLine("bye") == null) {
@@ -119,5 +178,21 @@ class ElizaEndpoint {
         errorReason: Throwable,
     ) {
         logger.error(errorReason) { "Session ${session.id} closed because of ${errorReason.javaClass.name}" }
+    }
+}
+
+@ServerEndpoint("/dashboard")
+@Component
+class DashboardEndpoint {
+    @OnOpen
+    fun onOpen(session: Session) {
+        Metrics.registerDashboard(session)
+        logger.info { "Dashboard connected: ${session.id}" }
+    }
+
+    @OnClose
+    fun onClose(session: Session) {
+        Metrics.unregisterDashboard(session)
+        logger.info { "Dashboard closed: ${session.id}" }
     }
 }
