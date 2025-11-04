@@ -60,7 +60,7 @@ object Metrics {
     private var lastTotal = 0L
 
     init {
-        // To send the metrics every second 
+        // To send the metrics every second
         fixedRateTimer("metrics", initialDelay = 1000, period = 1000) {
             val newTotal = totalMessages
             val perSecond = newTotal - lastTotal
