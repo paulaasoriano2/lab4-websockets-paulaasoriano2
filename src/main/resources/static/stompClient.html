@@ -13,11 +13,11 @@
 
   <script>
     // Create connection SockJS + STOMP
-    const socket = new SockJS('/eliza-stomp');
+    const socket = new SockJS('/stompClient');
     const stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
-      document.getElementById('log').textContent += "Connected to ELIZA\n";
+      document.getElementById('log').textContent += "Connected to ELIZA \n";
       // Listening for replies from the server
       stompClient.subscribe('/topic/replies', (msg) => {
         document.getElementById('log').textContent += "Doctor: " + msg.body + "\n";
@@ -28,7 +28,7 @@
     function sendMsg() {
       const msg = document.getElementById('msg').value;
       stompClient.send("/app/chat", {}, msg);
-      document.getElementById('log').textContent += "You: " + msg + "\n";
+      document.getElementById('log').textContent += "Me: " + msg + "\n";
       document.getElementById('msg').value = "";
     }
   </script>

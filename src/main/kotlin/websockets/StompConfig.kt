@@ -24,7 +24,7 @@ class StompConfig : WebSocketMessageBrokerConfigurer {
      */
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry
-            .addEndpoint("/eliza-stomp")
+            .addEndpoint("/stompClient")
             .setAllowedOriginPatterns("*")
             .withSockJS() // to activate SockJS support
     }
